@@ -78,9 +78,24 @@ const ExactVideoEcosystemContent = () => {
         if (found) {
           setActiveProfileMember(found);
           setInvalidProfileRequested(false);
-        } else {
-          setInvalidProfileRequested(true);
         }
+
+        // Asynchronously fetch latest volunteer data & photo from server DB for mobile QR scans
+        fetch(`/api/volunteers/${targetProfileId}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(latestVol => {
+            if (latestVol) {
+              setActiveProfileMember(prev => ({
+                ...prev,
+                ...latestVol,
+                heroCutout: latestVol.heroCutout || latestVol.profile_image_url || prev?.heroCutout,
+                avatar: latestVol.avatar || latestVol.profile_image_url || prev?.avatar,
+                profile_image_url: latestVol.profile_image_url || prev?.profile_image_url
+              }));
+              setInvalidProfileRequested(false);
+            }
+          })
+          .catch(() => {});
       } else if (viewParam === 'staff') {
         setViewMode('staff');
         setShowSplash(false);

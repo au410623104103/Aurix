@@ -42,9 +42,6 @@ export const DEFAULT_TEAMS = [
   { id: 'team-web', code: 'WEBSITE', name: 'Website & Digital Team' }
 ];
 
-// Default High-Res Cutout Silhouette SVG Data URL for Initial Members
-const DEFAULT_STUDIO_CUTOUT = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231D2B68"/><stop offset="100%" stop-color="%230F172A"/></linearGradient><linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%2338BDF8"/><stop offset="100%" stop-color="%232A3BFF"/></linearGradient></defs><rect width="320" height="400" rx="32" fill="url(%23bg)"/><circle cx="160" cy="140" r="70" fill="url(%23glow)" opacity="0.9" stroke="%23FFFFFF" stroke-width="4"/><path d="M50 360 C50 250 270 250 270 360 Z" fill="url(%23glow)" opacity="0.9" stroke="%23FFFFFF" stroke-width="4"/><text x="160" y="150" font-family="sans-serif" font-weight="900" font-size="32" fill="%23FFFFFF" text-anchor="middle">KM</text><text x="160" y="380" font-family="sans-serif" font-weight="800" font-size="16" fill="%2338BDF8" text-anchor="middle">AURIX VOLUNTEER</text></svg>`;
-
 // INITIAL MEMBERS DEFAULT REGISTRATION
 export const INITIAL_DC_MEMBERS = [
   {
@@ -66,9 +63,9 @@ export const INITIAL_DC_MEMBERS = [
     team: 'Media Team',
     userType: 'EXECUTIVE LEAD',
     about: 'Dhaanish Chennai College Event Operations Team Member.',
-    avatar: DEFAULT_STUDIO_CUTOUT,
-    heroCutout: DEFAULT_STUDIO_CUTOUT,
-    profile_image_url: DEFAULT_STUDIO_CUTOUT,
+    avatar: null,
+    heroCutout: null,
+    profile_image_url: null,
     status: 'ACTIVE'
   }
 ];
