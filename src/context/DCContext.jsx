@@ -174,7 +174,7 @@ export const DCProvider = ({ children }) => {
             setMembers(prev => dbVolunteers.map(dbItem => {
               const prevMatch = prev.find(p => p.id === dbItem.id);
               const savedPhoto = localStorage.getItem(`aurix_photo_${dbItem.id}`);
-              const photo = dbItem.profile_image_url || dbItem.heroCutout || dbItem.avatar || savedPhoto || prevMatch?.heroCutout || prevMatch?.avatar || '/user_cutout.png';
+              const photo = dbItem.profile_image_url || dbItem.heroCutout || dbItem.avatar || savedPhoto || prevMatch?.heroCutout || prevMatch?.avatar || null;
               return {
                 ...dbItem,
                 heroCutout: photo,
@@ -326,6 +326,14 @@ export const DCProvider = ({ children }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: updatedFields.name,
+          full_name: updatedFields.name,
+          phone: updatedFields.phone,
+          email: updatedFields.email,
+          department: updatedFields.department,
+          team: updatedFields.team,
+          roleTitle: updatedFields.team || updatedFields.roleTitle,
+          batch: updatedFields.batch,
           profile_image_url: updatedFields.heroCutout || updatedFields.profile_image_url,
           status: updatedFields.status
         })
@@ -367,7 +375,7 @@ export const DCProvider = ({ children }) => {
 
     // Fallback: If cleanId matches DC0001 or any DCxxxx ID, generate dynamic profile so QR scan NEVER fails!
     if (/^DC\d+$/i.test(cleanId)) {
-      const savedPhoto = localStorage.getItem(`aurix_photo_${cleanId}`) || '/user_cutout.png';
+      const savedPhoto = localStorage.getItem(`aurix_photo_${cleanId}`) || (cleanId === 'DC0001' ? '/karimulla_cutout.png' : null);
       return {
         id: cleanId,
         volunteer_id: cleanId,

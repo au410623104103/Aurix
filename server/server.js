@@ -188,19 +188,24 @@ app.post('/api/volunteers', async (req, res) => {
 app.put('/api/volunteers/:volunteer_id', async (req, res) => {
   try {
     const volId = req.params.volunteer_id.trim().toUpperCase();
-    const { profile_image_url, status } = req.body;
+    const { name, full_name, phone, email, department, team, roleTitle, batch, profile_image_url, status } = req.body;
 
     const vol = await queryOne('SELECT * FROM VOLUNTEERS WHERE UPPER(volunteer_id) = ?', [volId]);
     if (!vol) {
       return res.status(404).json({ error: 'Volunteer record not found' });
     }
 
-    if (profile_image_url !== undefined) {
-      await queryDb('UPDATE VOLUNTEERS SET profile_image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE UPPER(volunteer_id) = ?', [profile_image_url, volId]);
-    }
-    if (status !== undefined) {
-      await queryDb('UPDATE VOLUNTEERS SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE UPPER(volunteer_id) = ?', [status, volId]);
-    }
+    if (name !== undefined) await queryDb('UPDATE VOLUNTEERS SET name = ?, full_name = ? WHERE UPPER(volunteer_id) = ?', [name, name, volId]);
+    if (phone !== undefined) await queryDb('UPDATE VOLUNTEERS SET phone = ? WHERE UPPER(volunteer_id) = ?', [phone, volId]);
+    if (email !== undefined) await queryDb('UPDATE VOLUNTEERS SET email = ? WHERE UPPER(volunteer_id) = ?', [email, volId]);
+    if (department !== undefined) await queryDb('UPDATE VOLUNTEERS SET department = ? WHERE UPPER(volunteer_id) = ?', [department, volId]);
+    if (team !== undefined) await queryDb('UPDATE VOLUNTEERS SET team = ? WHERE UPPER(volunteer_id) = ?', [team, volId]);
+    if (roleTitle !== undefined) await queryDb('UPDATE VOLUNTEERS SET role_title = ? WHERE UPPER(volunteer_id) = ?', [roleTitle, volId]);
+    if (batch !== undefined) await queryDb('UPDATE VOLUNTEERS SET batch = ? WHERE UPPER(volunteer_id) = ?', [batch, volId]);
+    if (profile_image_url !== undefined) await queryDb('UPDATE VOLUNTEERS SET profile_image_url = ? WHERE UPPER(volunteer_id) = ?', [profile_image_url, volId]);
+    if (status !== undefined) await queryDb('UPDATE VOLUNTEERS SET status = ? WHERE UPPER(volunteer_id) = ?', [status, volId]);
+
+    await queryDb('UPDATE VOLUNTEERS SET updated_at = CURRENT_TIMESTAMP WHERE UPPER(volunteer_id) = ?', [volId]);
 
     const updated = await queryOne('SELECT * FROM VOLUNTEERS WHERE UPPER(volunteer_id) = ?', [volId]);
     const formatted = await formatVolunteerRecord(updated);

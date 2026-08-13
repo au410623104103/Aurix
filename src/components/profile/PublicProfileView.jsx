@@ -291,119 +291,149 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     URL.revokeObjectURL(url);
   };
 
-  // Download High Quality Front ID Card Image (PNG) with Dynamic Active Event Name
+  // Download High Quality Front ID Card Image (PNG) with Dynamic Active Event Name & HD Cutout Photo
   const handleDownloadFrontID = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 960;
     const ctx = canvas.getContext('2d');
 
-    // Background
-    ctx.fillStyle = '#08090C';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const drawCard = (imgObj = null) => {
+      // Background
+      ctx.fillStyle = '#08090C';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Punch slot
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(260, 20, 80, 16);
+      // Punch slot
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(260, 20, 80, 16);
 
-    // Top Branding
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 24px sans-serif';
-    ctx.fillText('AURIX', 30, 75);
+      // Top Branding
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 28px sans-serif';
+      ctx.fillText('AURIX', 40, 75);
 
-    // DYNAMIC TOP RIGHT ACTIVE EVENT NAME ON DOWNLOADED CARD
-    const cardFestTitle = activeEvt ? activeEvt.title : 'MAJLIS - ANNUAL FEST';
-    ctx.fillStyle = '#38BDF8';
-    ctx.font = '800 16px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(cardFestTitle.substring(0, 28), 570, 75);
-    ctx.textAlign = 'left';
+      // Dynamic Top Right Active Event Name
+      const cardFestTitle = activeEvt ? activeEvt.title : 'AURIX 2026 ANNUAL TECHNICAL FEST';
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '800 16px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(cardFestTitle.substring(0, 28), 560, 75);
+      ctx.textAlign = 'left';
 
-    // LEAD Background Watermark
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.font = '900 190px sans-serif';
-    ctx.fillText('L E A D', 20, 520);
+      // LEAD Watermark
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.font = '900 180px sans-serif';
+      ctx.fillText('L E A D', 20, 480);
 
-    // Base Gradient
-    const grad = ctx.createLinearGradient(0, 600, 0, 960);
-    grad.addColorStop(0, 'rgba(8,9,12,0)');
-    grad.addColorStop(1, '#08090C');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 600, 600, 360);
+      // Draw Cutout Photo if available
+      if (imgObj) {
+        ctx.drawImage(imgObj, 100, 150, 400, 560);
+      }
 
-    // Details Text
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 44px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(member.name.toUpperCase(), 300, 840);
+      // Base Dark Gradient Fade Overlay
+      const grad = ctx.createLinearGradient(0, 550, 0, 960);
+      grad.addColorStop(0, 'rgba(8,9,12,0)');
+      grad.addColorStop(0.7, 'rgba(8,9,12,0.92)');
+      grad.addColorStop(1, '#08090C');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 550, 600, 410);
 
-    ctx.fillStyle = '#38BDF8';
-    ctx.font = '900 22px sans-serif';
-    ctx.fillText((member.roleTitle || member.team || 'MEDIA & MARKETING LEAD').toUpperCase(), 300, 880);
+      // Volunteer Details Text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 42px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(member.name.toUpperCase(), 300, 830);
 
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '700 18px monospace';
-    ctx.fillText(`${member.batch || '2 0 2 4 - 2 0 2 8'} • ID: ${member.id}`, 300, 915);
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '900 22px sans-serif';
+      ctx.fillText((member.roleTitle || member.team || 'EXECUTIVE LEAD').toUpperCase(), 300, 875);
 
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = `${member.name.replace(/\s+/g, '_')}_Front_ID_Card.png`;
-    a.click();
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '700 18px monospace';
+      ctx.fillText(`${member.batch || '2 0 2 4 - 2 0 2 8'} • ID: ${member.id}`, 300, 915);
+
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `${member.name.replace(/\s+/g, '_')}_Front_ID_Card.png`;
+      a.click();
+    };
+
+    const targetUrl = displayCutoutUrl || (member.id === 'DC0001' ? '/karimulla_cutout.png' : null);
+
+    if (targetUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => drawCard(img);
+      img.onerror = () => drawCard(null);
+      img.src = targetUrl;
+    } else {
+      drawCard(null);
+    }
   };
 
-  // Download High Quality Back ID Card Image (PNG)
+  // Download High Quality Back ID Card Image (PNG) with Scannable QR Code
   const handleDownloadBackID = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 960;
     const ctx = canvas.getContext('2d');
 
-    // Background
-    ctx.fillStyle = '#08090C';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const profileUrl = member.profileUrl || `https://aurix-dun.vercel.app/profile/${member.id}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}`;
 
-    // Punch slot
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(260, 20, 80, 16);
+    const drawBackCard = (qrImg = null) => {
+      // Background
+      ctx.fillStyle = '#08090C';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Graphic Tiles
-    ctx.fillStyle = '#FFFFFF';
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.arc(60 + i * 140, 160, 50, Math.PI, 0);
-      ctx.fill();
-    }
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.arc(60 + i * 140, 230, 50, 0, Math.PI);
-      ctx.fill();
-    }
+      // Punch slot
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(260, 20, 80, 16);
 
-    // QR Box & Text Details
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(175, 380, 250, 250);
+      // Top Header
+      ctx.fillStyle = '#1D2B68';
+      ctx.fillRect(40, 80, 520, 8);
 
-    ctx.fillStyle = '#000000';
-    ctx.font = '900 36px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('DC QR', 300, 520);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('DHAANISH CHENNAI COLLEGE OF ENGINEERING', 300, 140);
 
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '800 24px sans-serif';
-    ctx.fillText(`DEPARTMENT OF ${member.department.toUpperCase()}`, 300, 720);
+      // QR Box Container
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(160, 240, 280, 280);
 
-    ctx.fillStyle = '#38BDF8';
-    ctx.font = '700 22px monospace';
-    ctx.fillText(member.phone, 300, 770);
+      if (qrImg) {
+        ctx.drawImage(qrImg, 175, 255, 250, 250);
+      } else {
+        ctx.fillStyle = '#000000';
+        ctx.font = '900 32px monospace';
+        ctx.fillText('DC QR', 300, 380);
+      }
 
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '700 18px monospace';
-    ctx.fillText('iedc.masc.edu.in', 300, 820);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '800 22px sans-serif';
+      ctx.fillText(`DEPARTMENT OF ${(member.department || 'CSE').toUpperCase()}`, 300, 600);
 
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = `${member.name.replace(/\s+/g, '_')}_Back_ID_Card.png`;
-    a.click();
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '700 20px monospace';
+      ctx.fillText(member.phone || '+91 9000 00 0000', 300, 650);
+
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '700 16px monospace';
+      ctx.fillText('aurix-dun.vercel.app', 300, 695);
+
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `${member.name.replace(/\s+/g, '_')}_Back_ID_Card.png`;
+      a.click();
+    };
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => drawBackCard(img);
+    img.onerror = () => drawBackCard(null);
+    img.src = qrApiUrl;
   };
 
   // Natural Language AI Conversational Engine
@@ -422,10 +452,10 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     }
 
     if (query.includes('contact') || query.includes('phone') || query.includes('call') || query.includes('number') || query.includes('whatsapp')) {
-      return `You can reach ${name} directly via Phone/WhatsApp at ${member.phone || '+91 9074 38 9868'} or Email at ${member.email || 'student@dhaanish.edu'}.`;
+      return `You can reach ${name} directly via Phone/WhatsApp at ${member.phone || '+91 9000 00 0000'} or Email at ${member.email || 'student@dhaanish.edu'}.`;
     }
 
-    return `Thank you for asking! ${name} is a verified ${role} at Dhaanish Chennai College of Engineering. For direct inquiries, feel free to call or WhatsApp ${name} at ${member.phone || '+91 9074 38 9868'}.`;
+    return `Thank you for asking! ${name} is a verified ${role} at Dhaanish Chennai College of Engineering. For direct inquiries, feel free to call or WhatsApp ${name} at ${member.phone || '+91 9000 00 0000'}.`;
   };
 
   const handleSendMessage = (e, customText = null) => {
@@ -448,8 +478,8 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     }, 750);
   };
 
-  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || '/user_cutout.png';
-  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : '/user_cutout.png';
+  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || (member.id === 'DC0001' ? '/karimulla_cutout.png' : null);
+  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : (member.id === 'DC0001' ? '/karimulla_cutout.png' : null);
 
   const suggestionChips = [
     `Who is ${firstName}?`,
@@ -636,7 +666,7 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
             {/* Role Section */}
             <section className="mt-8 pt-2">
               <h2 className="font-black text-[34px] sm:text-[36px] text-[#2A3BFF] tracking-[-0.02em] leading-tight font-sans uppercase">
-                {lang === 'en' ? (member.team || 'MEDIA TEAM') : (member.team || 'MEDIA TEAM')}
+                {lang === 'en' ? (member.roleTitle || member.team || t.mediaLead) : t.mediaLead}
               </h2>
 
               <div className="font-extrabold text-[18px] text-[#4A4754] tracking-[0.08em] uppercase mt-2 font-sans">
