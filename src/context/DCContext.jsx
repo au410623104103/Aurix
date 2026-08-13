@@ -188,6 +188,26 @@ export const DCProvider = ({ children }) => {
     const uniqueToken = `TOKEN-${formattedId}-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const profileUrl = `https://aurix-dun.vercel.app/profile/${formattedId}`;
 
+    // Upload base64 cutout photo to server if present to get permanent disk/cloud URL
+    let uploadedPhotoUrl = newMemberData.heroCutout || newMemberData.profile_image_url || null;
+    if (uploadedPhotoUrl && uploadedPhotoUrl.startsWith('data:image')) {
+      try {
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: uploadedPhotoUrl })
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          if (uploadData.url) {
+            uploadedPhotoUrl = uploadData.url;
+          }
+        }
+      } catch (e) {
+        console.log('Image upload fallback to data URL:', e);
+      }
+    }
+
     const newMember = {
       id: formattedId,
       volunteer_id: formattedId,
@@ -205,8 +225,9 @@ export const DCProvider = ({ children }) => {
       team: newMemberData.team || 'Media Team',
       userType: newMemberData.userType || 'EXECUTIVE LEAD',
       about: newMemberData.about || 'Dhaanish Chennai College Event Operations Team Member.',
-      avatar: newMemberData.heroCutout || null,
-      heroCutout: newMemberData.heroCutout || null,
+      avatar: newMemberData.heroCutout || uploadedPhotoUrl || null,
+      heroCutout: newMemberData.heroCutout || uploadedPhotoUrl || null,
+      profile_image_url: uploadedPhotoUrl || newMemberData.heroCutout || null,
       status: 'ACTIVE',
       isCheckedIn: true,
       checkInTime: new Date().toISOString()
@@ -220,14 +241,21 @@ export const DCProvider = ({ children }) => {
       });
       if (res.ok) {
         const savedVol = await res.json();
-        setMembers(prev => [savedVol, ...prev.filter(m => m.id !== savedVol.id)]);
-        return savedVol;
+        const mergedVol = {
+          ...savedVol,
+          heroCutout: newMember.heroCutout || savedVol.heroCutout || savedVol.profile_image_url,
+          avatar: newMember.avatar || savedVol.avatar || savedVol.profile_image_url
+        };
+        setMembers(prev => [mergedVol, ...prev.filter(m => m.id !== mergedVol.id)]);
+        setCurrentUser(mergedVol);
+        return mergedVol;
       }
     } catch (err) {
-      console.error('Failed to save volunteer to SQLite DB:', err);
+      console.error('Failed to save volunteer to DB:', err);
     }
 
     setMembers(prev => [newMember, ...prev]);
+    setCurrentUser(newMember);
     return newMember;
   };
 
