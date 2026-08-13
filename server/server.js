@@ -58,7 +58,7 @@ async function formatVolunteerRecord(vol) {
     SELECT qr_url FROM QR_CODES WHERE volunteer_id = ?
   `, [vol.volunteer_id]);
 
-  const qrUrl = qrRecord ? qrRecord.qr_url : `https://aurix.network/profile/${vol.volunteer_id}`;
+  const qrUrl = qrRecord ? qrRecord.qr_url : `https://aurix-dun.vercel.app/profile/${vol.volunteer_id}`;
 
   return {
     id: vol.volunteer_id,
@@ -147,7 +147,7 @@ app.post('/api/volunteers', async (req, res) => {
     const lastVol = await queryOne('SELECT id FROM VOLUNTEERS ORDER BY id DESC LIMIT 1');
     const nextIdNum = lastVol ? Number(lastVol.id) + 1 : 1;
     const volunteer_id = `DC${String(nextIdNum).padStart(4, '0')}`;
-    const qr_url = `https://aurix.network/profile/${volunteer_id}`;
+    const qr_url = `https://aurix-dun.vercel.app/profile/${volunteer_id}`;
 
     // Insert into VOLUNTEERS table
     await queryDb(`

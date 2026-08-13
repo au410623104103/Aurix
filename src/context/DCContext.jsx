@@ -186,7 +186,7 @@ export const DCProvider = ({ children }) => {
     const nextIdNum = members.length + 1;
     const formattedId = newMemberData.id || `DC${String(nextIdNum).padStart(4, '0')}`;
     const uniqueToken = `TOKEN-${formattedId}-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const profileUrl = `https://aurix.network/profile/${formattedId}`;
+    const profileUrl = `https://aurix-dun.vercel.app/profile/${formattedId}`;
 
     const newMember = {
       id: formattedId,

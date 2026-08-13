@@ -41,8 +41,8 @@ export const DigitalIDBadge = ({ memberOverride = null, onOpenVerifiedView }) =>
     );
   }
 
-  // PERMANENT UNIQUE PRODUCTION PROFILE URL (https://aurix.network/profile/:volunteerId)
-  const profileUrl = member.profileUrl || `https://aurix.network/profile/${member.id}`;
+  // LIVE PRODUCTION VERCEL DEPLOYMENT URL (https://aurix-dun.vercel.app/profile/:id)
+  const profileUrl = member.profileUrl || `https://aurix-dun.vercel.app/profile/${member.id}`;
   const activeEventTitle = activeEvt ? activeEvt.title : 'AURIX 2026 ANNUAL FEST';
 
   const handleCopyUrl = () => {
