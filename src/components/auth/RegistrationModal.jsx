@@ -16,6 +16,8 @@ export const RegistrationModal = ({ isOpen, onClose, onSuccess }) => {
     registerNo: '',
     department: departments[0]?.name || 'CSE - Computer Science & Engineering',
     team: teamOptions[0] || 'Media Team',
+    joinYear: '2024',
+    passoutYear: '2028',
     heroCutout: null
   });
 
@@ -50,8 +52,13 @@ export const RegistrationModal = ({ isOpen, onClose, onSuccess }) => {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
+    const spacedBatch = `${formData.joinYear.split('').join(' ')} - ${formData.passoutYear.split('').join(' ')}`;
+
     const newMember = registerMember({
       ...formData,
+      joinYear: formData.joinYear,
+      passoutYear: formData.passoutYear,
+      batch: spacedBatch,
       roleTitle: formData.team,
       heroCutout: formData.heroCutout || null,
       avatar: formData.heroCutout || null
@@ -259,6 +266,40 @@ export const RegistrationModal = ({ isOpen, onClose, onSuccess }) => {
               >
                 {teamOptions.map(tName => (
                   <option key={tName} value={tName}>{tName}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 7. JOIN YEAR (FROM YEAR) */}
+            <div>
+              <label className="block text-gray-900 font-black mb-1.5 flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-[#2A3BFF]" />
+                Join Year (From Year) *
+              </label>
+              <select
+                value={formData.joinYear}
+                onChange={(e) => setFormData(prev => ({ ...prev, joinYear: e.target.value }))}
+                className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-4 py-3.5 text-gray-900 font-black text-sm sm:text-base focus:outline-none focus:border-[#2A3BFF]"
+              >
+                {['2021', '2022', '2023', '2024', '2025', '2026'].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 8. PASSOUT YEAR (TO YEAR) */}
+            <div>
+              <label className="block text-gray-900 font-black mb-1.5 flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-[#2A3BFF]" />
+                Passout Year (To Year) *
+              </label>
+              <select
+                value={formData.passoutYear}
+                onChange={(e) => setFormData(prev => ({ ...prev, passoutYear: e.target.value }))}
+                className="w-full bg-gray-50 border border-gray-300 rounded-2xl px-4 py-3.5 text-gray-900 font-black text-sm sm:text-base focus:outline-none focus:border-[#2A3BFF]"
+              >
+                {['2024', '2025', '2026', '2027', '2028', '2029', '2030'].map(y => (
+                  <option key={y} value={y}>{y}</option>
                 ))}
               </select>
             </div>

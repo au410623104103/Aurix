@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useDC } from '../../context/DCContext';
 import { OFFICIAL_AURIX_TEAMS } from '../../data/dcMockData';
+import { processPhotoToStudioCutout } from '../../utils/aiCutoutEngine';
 import { 
   Users, 
   UserPlus, 
@@ -27,7 +28,10 @@ import {
   ShieldAlert,
   ChevronLeft,
   ChevronRight,
-  User
+  User,
+  Edit3,
+  Upload,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -39,12 +43,14 @@ export const StaffCoordinatorView = ({
   const { 
     members, 
     events, 
+    departments,
     getActiveEvent, 
     createNewEvent, 
     assignWorkToTeam, 
     deleteMember,
     denyMemberAccess,
-    restoreMemberAccess
+    restoreMemberAccess,
+    updateMemberProfile
   } = useDC();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,6 +61,8 @@ export const StaffCoordinatorView = ({
   const [isAssignWorkModalOpen, setIsAssignWorkModalOpen] = useState(false);
   const [isTotalEventsModalOpen, setIsTotalEventsModalOpen] = useState(false);
   const [isUpcomingEventsModalOpen, setIsUpcomingEventsModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [isProcessingEditPhoto, setIsProcessingEditPhoto] = useState(false);
 
   // Mouse Drag-to-Scroll State for Team Filter Bar
   const filterScrollRef = useRef(null);
@@ -599,13 +607,13 @@ export const StaffCoordinatorView = ({
 
                     {/* STAFF ACCESS DENIAL & PROFILE BUTTONS */}
                     <div className="space-y-2.5">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-3 gap-2">
                         {onSwitchToProfile && (
                           <button
                             onClick={() => onSwitchToProfile(m)}
-                            className="py-3.5 px-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-[#15141B] font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                            className="py-3 px-2 rounded-2xl bg-gray-100 hover:bg-gray-200 text-[#15141B] font-black text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
-                            <ExternalLink className="w-4 h-4 text-[#2A3BFF]" />
+                            <ExternalLink className="w-3.5 h-3.5 text-[#2A3BFF]" />
                             <span>View Profile</span>
                           </button>
                         )}
@@ -613,12 +621,20 @@ export const StaffCoordinatorView = ({
                         {onSwitchToBadge && (
                           <button
                             onClick={() => onSwitchToBadge(m)}
-                            className="py-3.5 px-4 rounded-2xl bg-[#1D2B68] hover:bg-black text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+                            className="py-3 px-2 rounded-2xl bg-[#1D2B68] hover:bg-black text-white font-black text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                           >
-                            <CreditCard className="w-4 h-4 text-emerald-400" />
+                            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
                             <span>View Badge</span>
                           </button>
                         )}
+
+                        <button
+                          onClick={() => setEditingMember({ ...m, joinYear: m.joinYear || '2024', passoutYear: m.passoutYear || '2028' })}
+                          className="py-3 px-2 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-black text-xs border border-blue-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Edit Profile</span>
+                        </button>
                       </div>
 
                       {/* SLEEK PROFESSIONAL DENY / RESTORE ACCESS ACTION BUTTON */}
@@ -966,6 +982,185 @@ export const StaffCoordinatorView = ({
                 </div>
               </form>
             </motion.div>
+          </div>
+        )}
+
+        {/* EDIT VOLUNTEER PROFILE MODAL (STAFF COORDINATOR ONLY) */}
+        {editingMember && (
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+            <div className="bg-white border border-gray-200 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col max-h-[92vh] font-sans">
+              <div className="bg-[#1D2B68] text-white px-8 py-6 flex items-center justify-between shadow-md">
+                <div className="flex items-center gap-3">
+                  <Edit3 className="w-6 h-6 text-emerald-400" />
+                  <div>
+                    <h3 className="font-black text-xl uppercase tracking-tight">Edit Volunteer Profile</h3>
+                    <p className="text-xs text-gray-300 font-mono">ID: {editingMember.id} • Staff Portal Control</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditingMember(null)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const spacedBatch = `${(editingMember.joinYear || '2024').split('').join(' ')} - ${(editingMember.passoutYear || '2028').split('').join(' ')}`;
+                  await updateMemberProfile(editingMember.id, {
+                    name: editingMember.name,
+                    full_name: editingMember.name,
+                    phone: editingMember.phone,
+                    email: editingMember.email,
+                    department: editingMember.department,
+                    team: editingMember.team,
+                    roleTitle: editingMember.team,
+                    joinYear: editingMember.joinYear,
+                    passoutYear: editingMember.passoutYear,
+                    batch: spacedBatch,
+                    heroCutout: editingMember.heroCutout,
+                    avatar: editingMember.heroCutout,
+                    profile_image_url: editingMember.heroCutout
+                  });
+                  setEditingMember(null);
+                }}
+                className="p-8 space-y-5 overflow-y-auto text-left"
+              >
+                {/* PHOTO CUTOUT UPLOAD */}
+                <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3">
+                  <label className="block text-gray-900 font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <Upload className="w-4 h-4 text-[#2A3BFF]" />
+                    <span>Upload Studio Cutout Photo</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      setIsProcessingEditPhoto(true);
+                      try {
+                        const studioPng = await processPhotoToStudioCutout(file);
+                        setEditingMember(prev => ({ ...prev, heroCutout: studioPng }));
+                      } catch (err) {
+                        console.error('Edit photo error:', err);
+                      } finally {
+                        setIsProcessingEditPhoto(false);
+                      }
+                    }}
+                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#1D2B68] file:text-white hover:file:bg-black file:cursor-pointer"
+                  />
+                  {isProcessingEditPhoto && (
+                    <p className="text-xs text-blue-600 font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                      <span>Processing AI Cutout & Contour...</span>
+                    </p>
+                  )}
+                  {editingMember.heroCutout && (
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="w-16 h-20 bg-black rounded-xl p-1 flex items-center justify-center overflow-hidden">
+                        <img src={editingMember.heroCutout} alt="Preview" className="h-full object-contain" />
+                      </div>
+                      <span className="text-xs text-emerald-700 font-bold">Cutout Photo Active & Ready!</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingMember.name}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingMember.phone}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '') }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF] font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Department</label>
+                    <select
+                      value={editingMember.department}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, department: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF]"
+                    >
+                      {departments.map(d => (
+                        <option key={d.id} value={d.name}>{d.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Team Assignment</label>
+                    <select
+                      value={editingMember.team}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, team: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF]"
+                    >
+                      {OFFICIAL_AURIX_TEAMS.filter(t => t !== 'ALL').map(tName => (
+                        <option key={tName} value={tName}>{tName}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Join Year (From Year)</label>
+                    <select
+                      value={editingMember.joinYear || '2024'}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, joinYear: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF]"
+                    >
+                      {['2021', '2022', '2023', '2024', '2025', '2026'].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 uppercase mb-1">Passout Year (To Year)</label>
+                    <select
+                      value={editingMember.passoutYear || '2028'}
+                      onChange={(e) => setEditingMember(prev => ({ ...prev, passoutYear: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#2A3BFF]"
+                    >
+                      {['2024', '2025', '2026', '2027', '2028', '2029', '2030'].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingMember(null)}
+                    className="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-7 py-2.5 rounded-xl bg-[#1D2B68] hover:bg-black text-white font-black text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-md"
+                  >
+                    Save Volunteer Profile Edits
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </AnimatePresence>
