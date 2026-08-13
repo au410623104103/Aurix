@@ -269,15 +269,6 @@ const ExactVideoEcosystemContent = () => {
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 font-extrabold tracking-wide uppercase">
                 Please Contact Staff Coordinator.
               </div>
-              <button
-                onClick={() => {
-                  setInvalidProfileRequested(false);
-                  changeViewMode('staff');
-                }}
-                className="w-full py-3.5 rounded-xl bg-[#2A3BFF] hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Return to Portal
-              </button>
             </div>
           </div>
         ) : (

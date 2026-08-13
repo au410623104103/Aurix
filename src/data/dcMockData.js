@@ -42,8 +42,30 @@ export const DEFAULT_TEAMS = [
   { id: 'team-web', code: 'WEBSITE', name: 'Website & Digital Team' }
 ];
 
-// INITIAL MEMBERS START FRESH (ADDED BY STAFF COORDINATOR ON REGISTRATION)
-export const INITIAL_DC_MEMBERS = [];
+// INITIAL MEMBERS DEFAULT REGISTRATION
+export const INITIAL_DC_MEMBERS = [
+  {
+    id: 'DC0001',
+    volunteer_id: 'DC0001',
+    profileUrl: 'https://aurix-dun.vercel.app/profile/DC0001',
+    token: 'TOKEN-DC0001-AURIX-2026',
+    registerNo: '310624104103',
+    name: 'KARIMULLA SK',
+    full_name: 'KARIMULLA SK',
+    roleTitle: 'EXECUTIVE LEAD',
+    department: 'CSE - COMPUTER SCIENCE & ENGINEERING',
+    batch: '2 0 2 4 - 2 0 2 8',
+    year: '3rd Year',
+    phone: '+91 9000 00 0000',
+    email: 'karimulla@dhaanish.edu',
+    team: 'Media Team',
+    userType: 'EXECUTIVE LEAD',
+    about: 'Dhaanish Chennai College Event Operations Team Member.',
+    avatar: null,
+    heroCutout: null,
+    status: 'ACTIVE'
+  }
+];
 
 export const INITIAL_DC_EVENTS = [
   {
