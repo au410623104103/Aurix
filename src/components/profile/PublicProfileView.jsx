@@ -448,8 +448,8 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     }, 750);
   };
 
-  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || '/user_cutout.png';
-  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : '/user_cutout.png';
+  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || null;
+  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string' && !rawCutout.includes('user_cutout')) ? rawCutout : null;
 
   const suggestionChips = [
     `Who is ${firstName}?`,
