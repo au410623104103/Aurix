@@ -17,39 +17,14 @@ export const DCProvider = ({ children }) => {
   const [departments, setDepartments] = useState(DEFAULT_DEPARTMENTS);
   const [teams, setTeams] = useState(DEFAULT_TEAMS);
 
-  // Initialize members with unique tokens and persistent localStorage cache
+  // Initialize members with unique tokens and status ('ACTIVE' | 'DENIED')
   const [members, setMembers] = useState(() => {
-    try {
-      const stored = localStorage.getItem('aurix_members_db');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {}
-
     return INITIAL_DC_MEMBERS.map((m, idx) => ({
       ...m,
       token: `TOKEN-${m.id}-${Date.now() + idx}`,
       status: m.status || 'ACTIVE'
     }));
   });
-
-  // Save member profile updates & photo cutouts permanently to localStorage
-  useEffect(() => {
-    try {
-      if (members && members.length > 0) {
-        localStorage.setItem('aurix_members_db', JSON.stringify(members));
-        members.forEach(m => {
-          const photo = m.heroCutout || m.avatar || m.profile_image_url;
-          if (photo) {
-            localStorage.setItem(`aurix_photo_${m.id}`, photo);
-          }
-        });
-      }
-    } catch (e) {}
-  }, [members]);
 
   // Events List with Ongoing & Upcoming Events
   const [events, setEvents] = useState([
@@ -188,7 +163,7 @@ export const DCProvider = ({ children }) => {
     return null;
   };
 
-  // Synchronize with SQLite Database Backend REST API (/api/volunteers)
+  // Synchronize with Database Backend REST API (/api/volunteers) while preserving photos
   useEffect(() => {
     const syncDbVolunteers = async () => {
       try {
@@ -196,7 +171,17 @@ export const DCProvider = ({ children }) => {
         if (res.ok) {
           const dbVolunteers = await res.json();
           if (Array.isArray(dbVolunteers) && dbVolunteers.length > 0) {
-            setMembers(dbVolunteers);
+            setMembers(prev => dbVolunteers.map(dbItem => {
+              const prevMatch = prev.find(p => p.id === dbItem.id);
+              const savedPhoto = localStorage.getItem(`aurix_photo_${dbItem.id}`);
+              const photo = dbItem.profile_image_url || dbItem.heroCutout || dbItem.avatar || savedPhoto || prevMatch?.heroCutout || prevMatch?.avatar || '/user_cutout.png';
+              return {
+                ...dbItem,
+                heroCutout: photo,
+                avatar: photo,
+                profile_image_url: photo
+              };
+            }));
           }
         }
       } catch (e) {
@@ -324,6 +309,13 @@ export const DCProvider = ({ children }) => {
   };
 
   const updateMemberProfile = async (memberId, updatedFields) => {
+    const photoToSave = updatedFields.heroCutout || updatedFields.avatar || updatedFields.profile_image_url;
+    if (photoToSave) {
+      try {
+        localStorage.setItem(`aurix_photo_${memberId}`, photoToSave);
+      } catch (e) {}
+    }
+
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, ...updatedFields } : m));
     if (currentUser?.id === memberId) {
       setCurrentUser(prev => ({ ...prev, ...updatedFields }));
@@ -365,32 +357,16 @@ export const DCProvider = ({ children }) => {
     }
 
     cleanId = cleanId.toUpperCase();
-    let found = members.find(m => 
+    const found = members.find(m => 
       m.id.toUpperCase() === cleanId || 
       m.token.toUpperCase() === cleanId ||
       m.registerNo.toUpperCase() === cleanId
     );
 
-    let cachedPhoto = null;
-    try {
-      cachedPhoto = localStorage.getItem(`aurix_photo_${cleanId}`);
-    } catch (e) {}
-
-    if (found) {
-      if ((!found.heroCutout || !found.avatar) && cachedPhoto) {
-        found = {
-          ...found,
-          heroCutout: found.heroCutout || cachedPhoto,
-          avatar: found.avatar || cachedPhoto,
-          profile_image_url: found.profile_image_url || cachedPhoto
-        };
-      }
-      return found;
-    }
+    if (found) return found;
 
     // Fallback: If cleanId matches DC0001 or any DCxxxx ID, generate dynamic profile so QR scan NEVER fails!
     if (/^DC\d+$/i.test(cleanId)) {
-      const activePhoto = cachedPhoto || (cleanId === 'DC0001' ? INITIAL_DC_MEMBERS[0].heroCutout : null);
       return {
         id: cleanId,
         volunteer_id: cleanId,
@@ -408,9 +384,8 @@ export const DCProvider = ({ children }) => {
         team: 'Media Team',
         userType: 'EXECUTIVE LEAD',
         about: 'Dhaanish Chennai College Event Operations Team Member.',
-        avatar: activePhoto,
-        heroCutout: activePhoto,
-        profile_image_url: activePhoto,
+        avatar: null,
+        heroCutout: null,
         status: 'ACTIVE'
       };
     }

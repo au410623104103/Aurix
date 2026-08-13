@@ -55,17 +55,15 @@ export const INITIAL_DC_MEMBERS = [
     roleTitle: 'EXECUTIVE LEAD',
     department: 'CSE - COMPUTER SCIENCE & ENGINEERING',
     batch: '2 0 2 4 - 2 0 2 8',
-    joinYear: '2024',
-    passoutYear: '2028',
     year: '3rd Year',
     phone: '+91 9000 00 0000',
     email: 'karimulla@dhaanish.edu',
     team: 'Media Team',
     userType: 'EXECUTIVE LEAD',
     about: 'Dhaanish Chennai College Event Operations Team Member.',
-    avatar: null,
-    heroCutout: null,
-    profile_image_url: null,
+    avatar: '/user_cutout.png',
+    heroCutout: '/user_cutout.png',
+    profile_image_url: '/user_cutout.png',
     status: 'ACTIVE'
   }
 ];

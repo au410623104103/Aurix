@@ -448,8 +448,8 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     }, 750);
   };
 
-  const rawCutout = member.heroCutout || member.avatar;
-  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string' && !rawCutout.includes('user_cutout')) ? rawCutout : null;
+  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || '/user_cutout.png';
+  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : '/user_cutout.png';
 
   const suggestionChips = [
     `Who is ${firstName}?`,
@@ -562,35 +562,28 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
               </h1>
 
               {/* DIRECT CUTOUT PHOTO FRAME (NO BACKGROUND CARD BOX) WITH BOTTOM DARK FADE GRADIENT */}
-              {(() => {
-                const cachedPhoto = typeof window !== 'undefined' ? localStorage.getItem(`aurix_photo_${member.id}`) : null;
-                const displayCutoutUrl = member.heroCutout || member.avatar || member.profile_image_url || cachedPhoto || null;
-
-                return (
-                  <div className="mt-6 flex justify-center relative">
-                    <div className="w-full max-w-[320px] h-[350px] flex items-end justify-center relative overflow-hidden">
-                      {displayCutoutUrl ? (
-                        <>
-                          <img
-                            src={displayCutoutUrl}
-                            alt={member.name}
-                            className="w-full h-full object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.15)] relative z-10"
-                          />
-                          {/* Subtle Bottom Dark Fade Gradient Overlay */}
-                          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#F5F2FB] via-[#F5F2FB]/80 to-transparent z-20 pointer-events-none" />
-                        </>
-                      ) : (
-                        <div className="w-[200px] h-[260px] bg-[#ECE7F9]/50 rounded-3xl flex items-center justify-center border border-purple-200/50">
-                          <svg className="w-[78%] h-auto block" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="100" cy="86" r="52" fill="#C9C1EA" />
-                            <path d="M20 240c0-55 36-96 80-96s80 41 80 96" fill="#C9C1EA" />
-                          </svg>
-                        </div>
-                      )}
+              <div className="mt-6 flex justify-center relative">
+                <div className="w-full max-w-[320px] h-[350px] flex items-end justify-center relative overflow-hidden">
+                  {displayCutoutUrl ? (
+                    <>
+                      <img
+                        src={displayCutoutUrl}
+                        alt={member.name}
+                        className="w-full h-full object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.15)] relative z-10"
+                      />
+                      {/* Subtle Bottom Dark Fade Gradient Overlay */}
+                      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#F5F2FB] via-[#F5F2FB]/80 to-transparent z-20 pointer-events-none" />
+                    </>
+                  ) : (
+                    <div className="w-[200px] h-[260px] bg-[#ECE7F9]/50 rounded-3xl flex items-center justify-center border border-purple-200/50">
+                      <svg className="w-[78%] h-auto block" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="86" r="52" fill="#C9C1EA" />
+                        <path d="M20 240c0-55 36-96 80-96s80 41 80 96" fill="#C9C1EA" />
+                      </svg>
                     </div>
-                  </div>
-                );
-              })()}
+                  )}
+                </div>
+              </div>
             </section>
 
             {/* ACTIVE EVENT WORK TASK BANNER (VISIBLE ONLY TO VOLUNTEER WHILE EVENT IS RUNNING) */}
