@@ -130,8 +130,9 @@ const ExactVideoEcosystemContent = () => {
         )}
       </AnimatePresence>
 
-      {/* Top Navigation Bar with Separate URL Routing Controls */}
-      <header className="bg-[#0E0D14] border-b border-gray-800 px-4 sm:px-8 py-2.5 sticky top-0 z-40 text-white">
+      {/* Top Navigation Bar (Hidden when viewing public student profile via QR scan) */}
+      {viewMode !== 'profile' && (
+        <header className="bg-[#0E0D14] border-b border-gray-800 px-4 sm:px-8 py-2.5 sticky top-0 z-40 text-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           
           {/* Logo & Replay Splash Trigger */}
@@ -245,9 +246,9 @@ const ExactVideoEcosystemContent = () => {
             )}
 
           </div>
-
         </div>
       </header>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1">
