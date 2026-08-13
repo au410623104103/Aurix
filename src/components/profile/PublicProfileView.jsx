@@ -448,8 +448,8 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
     }, 750);
   };
 
-  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || null;
-  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string' && !rawCutout.includes('user_cutout')) ? rawCutout : null;
+  const rawCutout = member.heroCutout || member.avatar || member.profile_image_url || '/user_cutout.png';
+  const displayCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : '/user_cutout.png';
 
   const suggestionChips = [
     `Who is ${firstName}?`,
@@ -636,7 +636,7 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
             {/* Role Section */}
             <section className="mt-8 pt-2">
               <h2 className="font-black text-[34px] sm:text-[36px] text-[#2A3BFF] tracking-[-0.02em] leading-tight font-sans uppercase">
-                {lang === 'en' ? (member.roleTitle || member.team || t.mediaLead) : t.mediaLead}
+                {lang === 'en' ? (member.team || 'MEDIA TEAM') : (member.team || 'MEDIA TEAM')}
               </h2>
 
               <div className="font-extrabold text-[18px] text-[#4A4754] tracking-[0.08em] uppercase mt-2 font-sans">

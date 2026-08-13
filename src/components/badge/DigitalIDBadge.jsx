@@ -102,8 +102,8 @@ export const DigitalIDBadge = ({ memberOverride = null, onOpenVerifiedView }) =>
     img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
   };
 
-  const rawCutout = customPhotoUrl || member.heroCutout || member.avatar;
-  const activeCutoutUrl = (rawCutout && typeof rawCutout === 'string' && !rawCutout.includes('user_cutout')) ? rawCutout : null;
+  const rawCutout = customPhotoUrl || member.heroCutout || member.avatar || '/user_cutout.png';
+  const activeCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : '/user_cutout.png';
 
   return (
     <div className="flex flex-col items-center justify-center p-4 max-w-xl mx-auto space-y-6 font-sans">
