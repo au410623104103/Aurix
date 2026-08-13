@@ -156,7 +156,7 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
   useEffect(() => {
     if (showMobileSplash) {
       const startTime = Date.now();
-      const duration = 2000;
+      const duration = 1200;
       const interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const p = Math.min(100, Math.floor((elapsed / duration) * 100));
@@ -524,15 +524,15 @@ export const PublicProfileView = ({ memberOverride = null, onClose = null, onRep
                 </button>
               </div>
 
-              {/* PERFECTLY SIZED CRISP SPLASH IMAGE SHOWCASE */}
-              <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
+              {/* PERFECTLY SIZED CRISP FULLSCREEN MOBILE SPLASH SHOWCASE */}
+              <div className="w-full h-full flex items-center justify-center relative z-10 overflow-hidden">
                 <motion.img
-                  initial={{ opacity: 0, scale: 0.96 }}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   src="/aurix_splash.png"
                   alt="AURIX Mobile Splash Screen"
-                  className="max-w-[390px] max-h-[80vh] w-auto h-auto object-contain filter drop-shadow-[0_10px_30px_rgba(42,59,255,0.4)]"
+                  className="w-full h-full object-cover object-center"
                 />
               </div>
 
