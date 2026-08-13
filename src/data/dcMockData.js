@@ -61,9 +61,9 @@ export const INITIAL_DC_MEMBERS = [
     team: 'Media Team',
     userType: 'EXECUTIVE LEAD',
     about: 'Dhaanish Chennai College Event Operations Team Member.',
-    avatar: null,
-    heroCutout: null,
-    profile_image_url: null,
+    avatar: '/user_cutout.png',
+    heroCutout: '/user_cutout.png',
+    profile_image_url: '/user_cutout.png',
     status: 'ACTIVE'
   }
 ];

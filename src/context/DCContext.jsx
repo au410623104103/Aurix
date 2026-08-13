@@ -174,7 +174,7 @@ export const DCProvider = ({ children }) => {
             setMembers(prev => dbVolunteers.map(dbItem => {
               const prevMatch = prev.find(p => p.id === dbItem.id);
               const savedPhoto = localStorage.getItem(`aurix_photo_${dbItem.id}`);
-              const photo = dbItem.profile_image_url || dbItem.heroCutout || dbItem.avatar || savedPhoto || prevMatch?.heroCutout || prevMatch?.avatar || null;
+              const photo = dbItem.profile_image_url || dbItem.heroCutout || dbItem.avatar || savedPhoto || prevMatch?.heroCutout || prevMatch?.avatar || '/user_cutout.png';
               return {
                 ...dbItem,
                 heroCutout: photo,
@@ -367,7 +367,7 @@ export const DCProvider = ({ children }) => {
 
     // Fallback: If cleanId matches DC0001 or any DCxxxx ID, generate dynamic profile so QR scan NEVER fails!
     if (/^DC\d+$/i.test(cleanId)) {
-      const savedPhoto = localStorage.getItem(`aurix_photo_${cleanId}`) || null;
+      const savedPhoto = localStorage.getItem(`aurix_photo_${cleanId}`) || '/user_cutout.png';
       return {
         id: cleanId,
         volunteer_id: cleanId,
