@@ -102,8 +102,8 @@ export const DigitalIDBadge = ({ memberOverride = null, onOpenVerifiedView }) =>
     img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
   };
 
-  const rawCutout = customPhotoUrl || member.heroCutout || member.avatar;
-  const activeCutoutUrl = (rawCutout && typeof rawCutout === 'string' && !rawCutout.includes('user_cutout')) ? rawCutout : null;
+  const rawCutout = customPhotoUrl || member.heroCutout || member.avatar || member.profile_image_url || (member.id === 'DC0001' ? '/karimulla_cutout.png' : null);
+  const activeCutoutUrl = (rawCutout && typeof rawCutout === 'string') ? rawCutout : (member.id === 'DC0001' ? '/karimulla_cutout.png' : null);
 
   return (
     <div className="flex flex-col items-center justify-center p-4 max-w-xl mx-auto space-y-6 font-sans">

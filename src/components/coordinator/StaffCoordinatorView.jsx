@@ -532,7 +532,7 @@ export const StaffCoordinatorView = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMembers.map((m) => {
                 const isDenied = m.status === 'DENIED';
-                const hasPhoto = m.heroCutout || m.avatar;
+                const memberPhoto = m.heroCutout || m.avatar || m.profile_image_url || (m.id === 'DC0001' ? '/karimulla_cutout.png' : null);
 
                 return (
                   <motion.div
@@ -558,9 +558,9 @@ export const StaffCoordinatorView = ({
 
                     <div className="flex items-start gap-4 pr-8">
                       {/* SILHOUETTE PLACEHOLDER FORMAT IF NO PHOTO ADDED YET BY MAM */}
-                      {hasPhoto ? (
+                      {memberPhoto ? (
                         <img
-                          src={m.heroCutout || m.avatar}
+                          src={memberPhoto}
                           alt={m.name}
                           className={`w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border shadow-xs shrink-0 ${
                             isDenied ? 'filter grayscale border-rose-300' : 'border-gray-100'
